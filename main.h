@@ -14,6 +14,14 @@
 
 int _putchar(char c);
 void _puts(char *str);
+int _strlen(char *s);
+char *_strdup(char *str);
+char *concatenate_strings(char *str1, char *str2, char *str3);
+char **splitString(char *str, const char *delim);
+void executeCommand(char **argv);
+void *reallocateArray(void *ptr, unsigned int oldSize, unsigned int newSize);
+
+
 
 
 #endif
