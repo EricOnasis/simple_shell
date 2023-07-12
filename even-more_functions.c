@@ -104,4 +104,73 @@ void unsetEnvironmentVariable(char **argv)
 	}
 }
 
+/**
+ * splitString - splits a string and makes it an array of pointers to words
+ * @str: the string to be split
+ * @delim: the delimiter
+ * Return: array of pointers to words
+ */
+char **splitString(char *str, const char *delim)
+{
+	int i, wn;
+	char **array;
+	char *token;
+	char *copy;
 
+	copy = malloc(stringLength(str) + 1);
+	if (copy == NULL)
+	{
+		perror(getEnvironmentVariable("_"));
+		return (NULL);
+	}
+	i = 0;
+	while (str[i])
+	{
+		copy[i] = str[i];
+		i++;
+	}
+	copy[i] = '\0';
+
+	token = strtok(copy, delim);
+	array = malloc((sizeof(char *) * 2));
+	array[0] = stringDuplicate(token);
+
+	i = 1;
+	wn = 3;
+	while (token)
+	{
+		token = strtok(NULL, delim);
+		array = reallocateArray(array, (sizeof(char *) * (wn - 1))
+				, (sizeof(char *) * wn));
+		array[i] = stringDuplicate(token);
+		i++;
+		wn++;
+	}
+	free(copy);
+	return (array);
+}
+
+/**
+ * executeCommand - executes a command
+ * @argv: array of arguments
+ */
+void executeCommand(char **argv)
+{
+	int d, status;
+
+	if (!argv || !argv[0])
+		return;
+
+	d = fork();
+	if (d == -1)
+	{
+		perror(getEnvironmentVariable("_"));
+	}
+	if (d == 0)
+	{
+		execve(argv[0], argv, environ);
+		perror(argv[0]);
+		exit(EXIT_FAILURE);
+	}
+	wait(&status);
+}
