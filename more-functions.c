@@ -90,3 +90,54 @@ int calculate_string_length(char *str)
 	}
 	return (length);
 }
+
+/**
+ * exitShell - exits the shell with or without a return of status n
+ * @argv: array of words of the entered line
+ */
+void exitShell(char **argv)
+{
+	int i, n;
+
+	if (argv[1])
+	{
+		n = convertToInt(argv[1]);
+		if (n <= -1)
+			n = 2;
+		freeArgs(argv);
+		exit(n);
+	}
+
+	for (i = 0; argv[i]; i++)
+		free(argv[i]);
+
+	free(argv);
+	exit(0);
+}
+
+/**
+ * convertToInt - converts a string into an integer
+ * @s: pointer to a string
+ * Return: the integer
+ */
+int convertToInt(char *s)
+{
+	int i, integer, sign = 1;
+
+	i = 0;
+	integer = 0;
+	while (!((s[i] >= '0') && (s[i] <= '9')) && (s[i] != '\0'))
+	{
+		if (s[i] == '-')
+		{
+			sign = sign * (-1);
+		}
+		i++;
+	}
+	while ((s[i] >= '0') && (s[i] <= '9'))
+	{
+		integer = (integer * 10) + (sign * (s[i] - '0'));
+		i++;
+	}
+	return (integer);
+}
