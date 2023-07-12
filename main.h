@@ -33,8 +33,10 @@ typedef struct PathList
 	struct PathList *next;
 } PathList;
 
-
-
+char *getEnvironmentVariable(const char *name);
+PathList *addNodeEnd(PathList **head, char *str);
+PathList *createPathList(char *path);
+char *findPathname(char *filename, PathList *head);
 
 
 #endif
