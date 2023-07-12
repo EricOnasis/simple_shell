@@ -38,5 +38,17 @@ PathList *addNodeEnd(PathList **head, char *str);
 PathList *createPathList(char *path);
 char *findPathname(char *filename, PathList *head);
 
+/**
+ * struct BuiltinCommand - pointer to function with corresponding builtin command
+ * @name: builtin command
+ * @func: execute the builtin command
+ */
+typedef struct BuiltinCommand
+{
+	char *name;
+	void (*func)(char **);
+} BuiltinCommand;
+
+
 
 #endif
