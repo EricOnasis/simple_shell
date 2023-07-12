@@ -49,6 +49,14 @@ typedef struct BuiltinCommand
 	void (*func)(char **);
 } BuiltinCommand;
 
+void (*checkBuiltin(char **argv))(char **argv);
+int convertToInt(char *s);
+void exitShell(char **argv);
+void printEnvironment(char **argv);
+void setEnvironmentVariable(char **argv);
+void unsetEnvironmentVariable(char **argv);
 
+void freeArgs(char **argv);
+void freePathList(PathList *head);
 
 #endif
