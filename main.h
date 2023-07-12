@@ -20,6 +20,19 @@ char *concatenate_strings(char *str1, char *str2, char *str3);
 char **splitString(char *str, const char *delim);
 void executeCommand(char **argv);
 void *reallocateArray(void *ptr, unsigned int oldSize, unsigned int newSize);
+extern char **environ;
+
+/**
+ * struct PathList - Linked list containing PATH directories
+ * @dir: directory in path
+ * @next: pointer to next node
+ */
+typedef struct PathList
+{
+	char *dir;
+	struct PathList *next;
+} PathList;
+
 
 
 
