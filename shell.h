@@ -14,49 +14,56 @@
 
 int _putchar(char c);
 void _puts(char *str);
-int _strlen(char *s);
+int _atoi(char *s);
 char *_strdup(char *str);
-char *concatenate_strings(char *str1, char *str2, char *str3);
-char **splitString(char *str, const char *delim);
-void executeCommand(char **argv);
-void *reallocateArray(void *ptr, unsigned int oldSize, unsigned int newSize);
+char *concat_all(char *name, char *sep, char *value);
+
+char **split_string(char *str, const char *delim);
+void execute_command(char **args);
+void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
+
+
 extern char **environ;
 
 /**
- * struct PathList - Linked list containing PATH directories
+ * struct list_path - Linked list containing PATH directories
  * @dir: directory in path
- * @next: pointer to next node
+ * @p: pointer to next node
  */
-typedef struct PathList
+typedef struct list_path
 {
-	char *dir;
-	struct PathList *next;
-} PathList;
+    char *dir;
+    struct list_path *p;
+} list_path;
 
-char *getEnvironmentVariable(const char *name);
-PathList *addNodeEnd(PathList **head, char *str);
-PathList *createPathList(char *path);
-char *findPathname(char *filename, PathList *head);
+typedef void (*builtin_func)(char **);
 
 /**
- * struct BuiltinCommand - pointer to function with corresponding builtin command
- * @name: builtin command
- * @func: execute the builtin command
+ * struct builtin_func_table - Mapping of built-in command names to functions
+ * @name: name of the built-in command
+ * @func: function implementing the built-in command
  */
-typedef struct BuiltinCommand
+typedef struct builtin_func_table
 {
-	char *name;
-	void (*func)(char **);
-} BuiltinCommand;
+    char *name;
+    builtin_func func;
+} builtin_func_table;
 
-void (*checkBuiltin(char **argv))(char **argv);
-int convertToInt(char *s);
-void exitShell(char **argv);
-void printEnvironment(char **argv);
-void setEnvironmentVariable(char **argv);
-void unsetEnvironmentVariable(char **argv);
+void exit_shell(char **args);
+void print_environment(char **args);
+void set_environment_variable(char **args);
+void unset_environment_variable(char **args);
+void (*get_builtin_function(char **args))(char **args);
 
-void freeArgs(char **argv);
-void freePathList(PathList *head);
+char *_getenv(const char *name);
+list_path *add_path_node_end(list_path **head, char *dir);
+list_path *create_path_list(char *path);
+char *find_executable_path(char *filename, list_path *head);
+void free_path_list(list_path *head);
+
+void sig_handler(int sig_num);
+void handle_eof(int len, char *buff);
+void check_isatty(void);
+void free_arguments(char **args);
 
 #endif

@@ -9,7 +9,7 @@ PathList *createPathList(char *path)
 {
 	PathList *head = NULL;
 	char *token;
-	char *copyPath = stringDuplicate(path);
+	char *copyPath = duplicate_string(path);
 
 	token = strtok(copyPath, ":");
 	while (token)
@@ -36,7 +36,7 @@ char *findPathname(char *filename, PathList *head)
 
 	while (tmp)
 	{
-		pathname = concatenateStrings(tmp->dir, "/", filename);
+		pathname = concatenate_strings(tmp->dir, "/", filename);
 		if (stat(pathname, &st) == 0)
 		{
 			return (pathname);

@@ -1,3 +1,4 @@
+#include "shell.h"
 /**
  * main - Main shell function
  * Return: 0 on success
@@ -18,7 +19,7 @@ int main(void)
 		handle_eof(input_length, input_buffer);
 		command_arguments = splitstring(input_buffer, " \n");
 		if (!command_arguments || !command_arguments[0])
-			execute(command_arguments)
+			execute(command_arguments);
 		else
 		{
 			path_value = _getenv("PATH");

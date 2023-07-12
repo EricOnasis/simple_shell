@@ -58,7 +58,7 @@ void setEnvironmentVariable(char **argv)
 	}
 	if (!environ[i])
 	{
-		environ[i] = concatenateStrings(argv[1], "=", argv[2]);
+		environ[i] = concatenate_strings(argv[1], "=", argv[2]);
 		environ[i + 1] = '\0';
 	}
 }
@@ -117,7 +117,7 @@ char **splitString(char *str, const char *delim)
 	char *token;
 	char *copy;
 
-	copy = malloc(stringLength(str) + 1);
+	copy = malloc(calculate_string_length(str) + 1);
 	if (copy == NULL)
 	{
 		perror(getEnvironmentVariable("_"));
@@ -133,7 +133,7 @@ char **splitString(char *str, const char *delim)
 
 	token = strtok(copy, delim);
 	array = malloc((sizeof(char *) * 2));
-	array[0] = stringDuplicate(token);
+	array[0] = duplicate_string(token);
 
 	i = 1;
 	wn = 3;
@@ -142,7 +142,7 @@ char **splitString(char *str, const char *delim)
 		token = strtok(NULL, delim);
 		array = reallocateArray(array, (sizeof(char *) * (wn - 1))
 				, (sizeof(char *) * wn));
-		array[i] = stringDuplicate(token);
+		array[i] = duplicate_string(token);
 		i++;
 		wn++;
 	}
