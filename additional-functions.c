@@ -56,7 +56,7 @@ int _putchar(char c)
 }
 
 /**
- * splitstring - splits a string and makes it an array of pointers to words
+ * split_string - splits a string and makes it an array of pointers to words
  * @str: the string to be split
  * @delim: the delimiter
  * Return: array of pointers to words
