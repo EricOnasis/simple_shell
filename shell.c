@@ -4,47 +4,43 @@
  * main - Shell
  * Return: 0 on success
  */
+
 int main(void)
 {
-	ssize_t len = 0;
-	char *buff = NULL, *value, *pathname, **args;
-	size_t size = 0;
-	list_path *head = NULL;
-	void (*func)(char **);
+	list_path *pathHead = NULL;
+	void (*builtinFunc)(char **);
+	ssize_t length = 0;
+	char *buffer = NULL, **arguments = NULL, *envValue = NULL, *execPath = NULL;
+	size_t bufferSize = 0;
 
 	signal(SIGINT, sig_handler);
-	while (len != EOF)
+	while (length != EOF)
 	{
 		check_isatty();
-		len = getline(&buff, &size, stdin);
-		handle_eof(len, buff);
-		args = split_string(buff, " \n");
-		if (!args || !args[0])
-			execute_command(args);
-		else
+		length = getline(&buffer, &bufferSize, stdin);
+		handle_eof(length, buffer);
+		arguments = split_string(buffer, " \n");
+		if (arguments && arguments[0])
 		{
-			value = _getenv("PATH");
-			head = create_path_list(value);
-			pathname = find_executable_path(args[0], head);
-			func = get_builtin_function(args);
-			if (func)
+			envValue = _getenv("PATH");
+			pathHead = create_path_list(envValue);
+			execPath = find_executable_path(arguments[0], pathHead);
+			builtinFunc = get_builtin_function(arguments);
+			if (builtinFunc)
 			{
-				free(buff);
-				func(args);
+				free(buffer), builtinFunc(arguments);
 			}
-			else if (!pathname)
-				execute_command(args);
-			else if (pathname)
-			{
-				free(args[0]);
-				args[0] = pathname;
-				execute_command(args);
-			}
+			else if (!execPath)
+				execute_command(arguments);
+			else
+				free(arguments[0]), arguments[0] = execPath,
+					execute_command(arguments);
 		}
+		else
+			execute_command(arguments), free_path_list(pathHead),
+				free_arguments(arguments);
 	}
 
-	free_path_list(head);
-	free_arguments(args);
-	free(buff);
+	free(buffer);
 	return (0);
 }
