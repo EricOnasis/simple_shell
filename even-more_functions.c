@@ -1,176 +1,135 @@
 #include "shell.h"
 
 /**
- * printEnvironment - prints the current environment
- * @argv: array of arguments
+ * free_path_list - frees a list_path
+ * @head: pointer to our linked list
  */
-void printEnvironment(char **argv __attribute__ ((unused)))
-{
-	int i;
 
-	for (i = 0; environ[i]; i++)
+void free_path_list(list_path *head)
+{
+	list_path *current = head;
+	list_path *next;
+
+	while (current != NULL)
 	{
-		_puts(environ[i]);
-		_puts("\n");
+		next = current->p;
+		free(current->dir);
+		free(current);
+		current = next;
 	}
 }
 
 /**
- * setEnvironmentVariable - Initialize a new environment
- * variable, or modify an existing one
- * @argv: array of entered words
+ * find_executable_path - finds the pathname of an executable file
+ * @filename: name of file or command
+ * @head: head of linked list of path directories
+ * Return: pathname of filename or NULL if no match
  */
-
-void setEnvironmentVariable(char **argv)
+char *find_executable_path(char *filename, list_path *head)
 {
-	int i, j, k;
+	struct stat st;
+	char *pathname;
+	list_path *tmp = head;
 
-	if (!argv[1] || !argv[2])
+	while (tmp != NULL)
 	{
-		perror(getEnvironmentVariable("_"));
-		return;
+		pathname = concat_all(tmp->dir, "/", filename);
+		if (stat(pathname, &st) == 0)
+			return (pathname);
+		free(pathname);
+		tmp = tmp->p;
 	}
 
-	for (i = 0; environ[i]; i++)
-	{
-		j = 0;
-		if (argv[1][j] == environ[i][j])
-		{
-			while (argv[1][j])
-			{
-				if (argv[1][j] != environ[i][j])
-					break;
-
-				j++;
-			}
-			if (argv[1][j] == '\0')
-			{
-				k = 0;
-				while (argv[2][k])
-				{
-					environ[i][j + 1 + k] = argv[2][k];
-					k++;
-				}
-				environ[i][j + 1 + k] = '\0';
-				return;
-			}
-		}
-	}
-	if (!environ[i])
-	{
-		environ[i] = concatenate_strings(argv[1], "=", argv[2]);
-		environ[i + 1] = '\0';
-	}
+	return (NULL);
 }
 
 /**
- * unsetEnvironmentVariable - Remove an environment variable
- * @argv: array of entered words
+ * create_path_list - creates a linked list for path directories
+ * @path: string of path value
+ * Return: pointer to the created linked list
  */
+list_path *create_path_list(char *path)
+{
+	list_path *head = NULL;
+	char *token;
+	char *copy_path = _strdup(path);
 
-void unsetEnvironmentVariable(char **argv)
+	token = strtok(copy_path, ":");
+	while (token != NULL)
+	{
+		head = add_path_node_end(&head, token);
+		token = strtok(NULL, ":");
+	}
+
+	free(copy_path);
+	return (head);
+}
+
+/**
+ * add_path_node_end - adds a new node at the end of a list_path list
+ * @head: pointer to pointer to our linked list
+ * @dir: pointer to directory in previous first node
+ * Return: address of the new element/node
+ */
+list_path *add_path_node_end(list_path **head, char *dir)
+{
+	list_path *tmp, *new_node;
+
+	new_node = malloc(sizeof(list_path));
+	if (new_node == NULL)
+		return (NULL);
+
+	new_node->dir = _strdup(dir);
+	new_node->p = NULL;
+
+	if (*head == NULL)
+	{
+		*head = new_node;
+	}
+	else
+	{
+		tmp = *head;
+		while (tmp->p)
+			tmp = tmp->p;
+
+		tmp->p = new_node;
+	}
+
+	return (*head);
+}
+
+/**
+ * _getenv - gets the value of the global variable
+ * @name: name of the global variable
+ * Return: string of value
+ */
+char *_getenv(const char *name)
 {
 	int i, j;
+	char *value;
 
-	if (!argv[1])
-	{
-		perror(getEnvironmentVariable("_"));
-		return;
-	}
+	if (!name)
+		return (NULL);
+
 	for (i = 0; environ[i]; i++)
 	{
 		j = 0;
-		if (argv[1][j] == environ[i][j])
+		if (name[j] == environ[i][j])
 		{
-			while (argv[1][j])
+			while (name[j])
 			{
-				if (argv[1][j] != environ[i][j])
+				if (name[j] != environ[i][j])
 					break;
 
 				j++;
 			}
-			if (argv[1][j] == '\0')
+			if (name[j] == '\0')
 			{
-				free(environ[i]);
-				environ[i] = environ[i + 1];
-				while (environ[i])
-				{
-					environ[i] = environ[i + 1];
-					i++;
-				}
-				return;
+				value = (environ[i] + j + 1);
+				return (value);
 			}
 		}
 	}
-}
 
-/**
- * splitString - splits a string and makes it an array of pointers to words
- * @str: the string to be split
- * @delim: the delimiter
- * Return: array of pointers to words
- */
-char **splitString(char *str, const char *delim)
-{
-	int i, wn;
-	char **array;
-	char *token;
-	char *copy;
-
-	copy = malloc(calculate_string_length(str) + 1);
-	if (copy == NULL)
-	{
-		perror(getEnvironmentVariable("_"));
-		return (NULL);
-	}
-	i = 0;
-	while (str[i])
-	{
-		copy[i] = str[i];
-		i++;
-	}
-	copy[i] = '\0';
-
-	token = strtok(copy, delim);
-	array = malloc((sizeof(char *) * 2));
-	array[0] = duplicate_string(token);
-
-	i = 1;
-	wn = 3;
-	while (token)
-	{
-		token = strtok(NULL, delim);
-		array = reallocateArray(array, (sizeof(char *) * (wn - 1))
-				, (sizeof(char *) * wn));
-		array[i] = duplicate_string(token);
-		i++;
-		wn++;
-	}
-	free(copy);
-	return (array);
-}
-
-/**
- * executeCommand - executes a command
- * @argv: array of arguments
- */
-void executeCommand(char **argv)
-{
-	int d, status;
-
-	if (!argv || !argv[0])
-		return;
-
-	d = fork();
-	if (d == -1)
-	{
-		perror(getEnvironmentVariable("_"));
-	}
-	if (d == 0)
-	{
-		execve(argv[0], argv, environ);
-		perror(argv[0]);
-		exit(EXIT_FAILURE);
-	}
-	wait(&status);
+	return (NULL);
 }

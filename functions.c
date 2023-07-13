@@ -1,46 +1,104 @@
 #include "shell.h"
 
 /**
- * handle_sigint - checks if Ctrl+C is pressed
- * @signal_number: the pressed character
+ * concatenate - concats 3 strings in a newly allocated memory
+ * @name: first string
+ * @sep: second string
+ * @value: Third string
+ * Return: pointer to the new string
  */
 
-void handle_sigint(int signal_number)
+char *concatenate(char *name, char *sep, char *value)
 {
-	if (signal_number == SIGINT)
-	{
-		_puts("\n$ ");
-	}
+	int len1, len2, len3, total_len, i, j;
+	char *result;
+
+	len1 = strlen(name);
+	len2 = strlen(sep);
+	len3 = strlen(value);
+	total_len = len1 + len2 + len3;
+
+	result = malloc(sizeof(char) * (total_len + 1));
+	if (result == NULL)
+		return (NULL);
+
+	for (i = 0; i < len1; i++)
+		result[i] = name[i];
+	for (j = 0; j < len2; j++)
+		result[i + j] = sep[j];
+	for (j = 0; j < len3; j++)
+		result[i + j + len2] = value[j];
+	result[i + j + len2] = '\0';
+
+	return (result);
 }
 
 /**
- * handle_eof - handles the End of File condition
- * @line_length: return value of getline function
- * @buffer: buffer
+ * _strdup - returns a pointer to a newly allocated space in memory, which
+ * contains a copy of the string given as a parameter
+ * @str: pointer to a string
+ * Return: pointer to a string
  */
 
-void handle_eof(int line_length, char *buffer)
+char *_strdup(char *str)
 {
-	(void)buffer;
-	if (line_length == -1)
-	{
-		if (isatty(STDIN_FILENO))
-		{
-			_puts("\n");
-			free(buffer);
-		}
-		exit(0);
-	}
+	if (str == NULL)
+		return (NULL);
+
+	int len = strlen(str);
+	char *dup = malloc(sizeof(char) * (len + 1));
+
+	if (dup == NULL)
+		return (NULL);
+
+	strcpy(dup, str);
+	return (dup);
 }
 
 /**
- * print_prompt_if_tty - prints the shell prompt if input is from a terminal
+ * split_string - splits a string and makes it an array of pointers to words
+ * @str: the string to be split
+ * @delim: the delimiter
+ * Return: array of pointers to words
  */
 
-void print_prompt_if_tty(void)
+char **split_string(char *str, const char *delim)
 {
-	if (isatty(STDIN_FILENO))
-		_puts("$ ");
+	int i, wn;
+	char **array;
+	char *token;
+	char *copy;
+
+	copy = _strdup(str);
+	if (copy == NULL)
+	{
+		perror("Memory allocation failed");
+		return (NULL);
+	}
+
+	i = 0;
+	while (copy[i])
+	{
+		i++;
+	}
+	copy[i] = '\0';
+
+	token = strtok(copy, delim);
+	array = malloc(sizeof(char *) * 2);
+	array[0] = _strdup(token);
+
+	i = 1;
+	wn = 3;
+	while (token)
+	{
+		token = strtok(NULL, delim);
+		array = realloc(array, sizeof(char *) * wn);
+		array[i] = _strdup(token);
+		i++;
+		wn++;
+	}
+	free(copy);
+	return (array);
 }
 
 /**
@@ -50,6 +108,7 @@ void print_prompt_if_tty(void)
  * Return: On success 1.
  * On error, -1 is returned, and errno is set appropriately.
  */
+
 int _putchar(char c)
 {
 	return (write(1, &c, 1));

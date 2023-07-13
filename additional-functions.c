@@ -1,114 +1,101 @@
 #include "shell.h"
 
 /**
- * reallocateArray - Reallocates memory block for array of strings
- * @ptr: previous pointer
- * @oldSize: old size of previous pointer
- * @newSize: new size for our pointer
- * Return: New resized pointer
+ * find_executable_path - finds the pathname of an executable file
+ * @filename: name of file or command
+ * @head: head of linked list of path directories
+ * Return: pathname of filename or NULL if no match
  */
 
-void *reallocateArray(void *ptr, unsigned int oldSize, unsigned int newSize)
+char *find_executable_path(char *filename, list_path *head)
 {
-	char *new;
-	char *old;
+	struct stat st;
+	char *pathname;
+	list_path *tmp = head;
 
-	unsigned int i;
-
-	if (ptr == NULL)
-		return (malloc(newSize));
-
-	if (newSize == oldSize)
-		return (ptr);
-
-	if (newSize == 0 && ptr != NULL)
+	while (tmp != NULL)
 	{
-		free(ptr);
-		return (NULL);
+		pathname = concat_all(tmp->dir, "/", filename);
+		if (stat(pathname, &st) == 0)
+			return (pathname);
+		free(pathname);
+		tmp = tmp->p;
 	}
 
-	new = malloc(newSize);
-	old = ptr;
-	if (new == NULL)
-		return (NULL);
-
-	if (newSize > oldSize)
-	{
-		for (i = 0; i < oldSize; i++)
-			new[i] = old[i];
-		free(ptr);
-		for (i = oldSize; i < newSize; i++)
-			new[i] = '\0';
-	}
-	if (newSize < oldSize)
-	{
-		for (i = 0; i < newSize; i++)
-			new[i] = old[i];
-		free(ptr);
-	}
-	return (new);
-}
-
-/**
- * freeArray - frees the array of pointers arv
- * @array: array of pointers
- */
-void freeArray(char **array)
-{
-	int i;
-
-	for (i = 0; array[i]; i++)
-		free(array[i]);
-	free(array);
-}
-
-/**
- * checkBuiltin - checks if the command is a builtin
- * @argv: array of arguments
- * Return: pointer to function that takes argv and returns void
- */
-
-void (*checkBuiltin(char **argv))(char **argv)
-{
-	int i, j;
-	BuiltinCommand commands[] = {
-		{"exit", exitShell},
-		{"env", printEnvironment},
-		{"setenv", setEnvironmentVariable},
-		{"unsetenv", unsetEnvironmentVariable},
-		{NULL, NULL}
-	};
-
-	for (i = 0; commands[i].name; i++)
-	{
-		j = 0;
-		if (commands[i].name[j] == argv[0][j])
-		{
-			for (j = 0; argv[0][j]; j++)
-			{
-				if (commands[i].name[j] != argv[0][j])
-					break;
-			}
-			if (!argv[0][j])
-				return (commands[i].func);
-		}
-	}
 	return (NULL);
 }
 
+
 /**
- * getEnvironmentVariable - gets the value of the environment variable
- * @name: name of the environment variable
- * Return: string of value
+ * create_path_list - creates a linked list for path directories
+ * @path: string of path value
+ * Return: pointer to the created linked list
  */
 
-char *getEnvironmentVariable(const char *name)
+list_path *create_path_list(char *path)
+{
+	list_path *head = NULL;
+	char *token;
+	char *copy_path = _strdup(path);
+
+	token = strtok(copy_path, ":");
+	while (token != NULL)
+	{
+		head = add_path_node_end(&head, token);
+		token = strtok(NULL, ":");
+	}
+
+	free(copy_path);
+	return (head);
+}
+
+/**
+ * add_path_node_end - adds a new node at the end of a list_path list
+ * @head: pointer to pointer to our linked list
+ * @dir: pointer to directory in previous first node
+ * Return: address of the new element/node
+ */
+
+list_path *add_path_node_end(list_path **head, char *dir)
+{
+	list_path *tmp, *new_node;
+
+	new_node = malloc(sizeof(list_path));
+	if (new_node == NULL)
+		return (NULL);
+
+	new_node->dir = _strdup(dir);
+	new_node->p = NULL;
+
+	if (*head == NULL)
+	{
+		*head = new_node;
+	}
+	else
+	{
+		tmp = *head;
+		while (tmp->p)
+			tmp = tmp->p;
+
+		tmp->p = new_node;
+	}
+
+	return (*head);
+}
+
+/**
+ * _getenv - gets the value of the global variable
+ * @name: name of the global variable
+ * Return: string of value
+ */
+char *_getenv(const char *name)
 {
 	int i, j;
 	char *value;
 
 	if (!name)
 		return (NULL);
+
 	for (i = 0; environ[i]; i++)
 	{
 		j = 0;
@@ -128,47 +115,21 @@ char *getEnvironmentVariable(const char *name)
 			}
 		}
 	}
+
 	return (NULL);
 }
 
 /**
- * addNodeEnd - adds a new node at the end of a linked list
- * @head: pointer to pointer to the head of the linked list
- * @str: pointer to string in the previous first node
- * Return: address of the new element/node
+ * free_arguments - frees the array of pointers args
+ * @args: array of pointers
  */
-
-LinkedListNode *addNodeEnd(LinkedListNode **head, char *str)
+void free_arguments(char **args)
 {
-	LinkedListNode *tmp;
-	LinkedListNode *newNode;
+	int i;
 
-	newNode = malloc(sizeof(LinkedListNode));
-
-	if (!newNode || !str)
-	{
-		return (NULL);
-	}
-
-	newNode->dir = str;
-	newNode->next = (NULL);
-
-	if (!*head)
-	{
-		*head = newNode;
-	}
-	else
-	{
-		tmp = *head;
-
-		while (tmp->next)
-		{
-			tmp = tmp->next;
-		}
-
-		tmp->next = newNode;
-	}
-
-	return (*head);
+	for (i = 0; args[i]; i++)
+		free(args[i]);
+	free(args);
 }
+
 

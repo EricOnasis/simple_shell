@@ -1,67 +1,123 @@
 #include "shell.h"
 
 /**
- * createPathList - creates a linked list for path directories
- * @path: string of path value
- * Return: pointer to the created linked list
+ * _realloc - Reallocates memory block
+ * @ptr: previous pointer
+ * @old_size: old size of previous pointer
+ * @new_size: new size for our pointer
+ * Return: New resized Pointer
  */
-PathList *createPathList(char *path)
+void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 {
-	PathList *head = NULL;
-	char *token;
-	char *copyPath = duplicate_string(path);
+	char *new_ptr;
+	unsigned int i;
 
-	token = strtok(copyPath, ":");
-	while (token)
+	if (new_size == old_size)
+		return (ptr);
+
+	if (new_size == 0 && ptr != NULL)
 	{
-		head = addNodeEnd(&head, token);
-		token = strtok(NULL, ":");
+		free(ptr);
+		return (NULL);
 	}
 
-	return (head);
+	new_ptr = malloc(new_size);
+	if (new_ptr == NULL)
+		return (NULL);
+
+	if (new_size > old_size)
+	{
+		for (i = 0; i < old_size; i++)
+			new_ptr[i] = *((char *)ptr + i);
+
+		for (; i < new_size; i++)
+			new_ptr[i] = '\0';
+	}
+	else
+	{
+		for (i = 0; i < new_size; i++)
+			new_ptr[i] = *((char *)ptr + i);
+	}
+
+	free(ptr);
+	return (new_ptr);
 }
 
 /**
- * findPathname - finds the pathname of a filename
- * @filename: name of file or command
- * @head: head of linked list of path directories
- * Return: pathname of filename or NULL if no match
+ * execute_command - executes a command
+ * @args: array of arguments
  */
-char *findPathname(char *filename, PathList *head)
+
+void execute_command(char **args)
 {
-	struct stat st;
-	char *pathname;
+	pid_t pid;
+	int status;
 
-	PathList *tmp = head;
+	if (!args || !args[0])
+		return;
 
-	while (tmp)
+	pid = fork();
+	if (pid == -1)
 	{
-		pathname = concatenate_strings(tmp->dir, "/", filename);
-		if (stat(pathname, &st) == 0)
-		{
-			return (pathname);
-		}
-		free(pathname);
-		tmp = tmp->next;
+		perror(_getenv("_"));
 	}
+	if (pid == 0)
+	{
+		execve(args[0], args, environ);
+		perror(args[0]);
+		exit(EXIT_FAILURE);
+	}
+	else
+	{
+		waitpid(pid, &status, 0);
+	}
+}
 
+/**
+ * get_builtin_function - checks if the command is a built-in function
+ * @args: array of arguments
+ * Return: pointer to function that takes args and returns void
+ */
+void (*get_builtin_function(char **args))(char **args)
+{
+	int i, j;
+	builtin_func_table table[] = {
+		{"exit", exit_shell},
+		{"env", print_environment},
+		{"setenv", set_environment_variable},
+		{"unsetenv", unset_environment_variable},
+		{NULL, NULL}};
+	for (i = 0; table[i].name; i++)
+	{
+		j = 0;
+		if (table[i].name[j] == args[0][j])
+		{
+			while (args[0][j])
+			{
+				if (table[i].name[j] != args[0][j])
+					break;
+				j++;
+			}
+			if (!args[0][j])
+				return (table[i].func);
+		}
+	}
 	return (NULL);
 }
 
 /**
- * freePathList - frees a PathList
- * @head: pointer to our linked list
+ * print_environment - prints the current environment
+ * @args: array of arguments
  */
-void freePathList(PathList *head)
+void print_environment(char **args)
 {
-	PathList *storage;
+	int i;
 
-	while (head)
+	for (i = 0; environ[i]; i++)
 	{
-		storage = head->next;
-		free(head->dir);
-		free(head);
-		head = storage;
+		_puts(environ[i]);
+		_puts("\n");
 	}
-}
 
+	free_arguments(args);
+}

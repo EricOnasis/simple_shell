@@ -16,7 +16,7 @@ int _putchar(char c);
 void _puts(char *str);
 int _atoi(char *s);
 char *_strdup(char *str);
-char *concat_all(char *name, char *sep, char *value);
+char *concatenate(char *name, char *sep, char *value);
 
 char **split_string(char *str, const char *delim);
 void execute_command(char **args);
