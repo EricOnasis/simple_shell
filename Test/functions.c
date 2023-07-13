@@ -70,39 +70,44 @@ void print_environment(char **args)
  */
 void set_environment_variable(char **args)
 {
+	int i, j, k, num_vars = 0;
+	char *new_var = concat_all(args[1], "=", args[2]);
+
 	if (!args[1] || !args[2])
 	{
 		perror(_getenv("_"));
 		return;
 	}
-	for (int i = 0; environ[i]; i++)
+
+	for (i = 0; environ[i]; i++)
 	{
-		int j = 0;
-
-		while (args[1][j] && args[1][j] == environ[i][j])
+		j = 0;
+		if (args[1][j] == environ[i][j])
 		{
-			j++;
-		}
-		if (args[1][j] == '\0')
-		{
-			int k = 0;
-
-			while (args[2][k])
+			while (args[1][j])
 			{
-				environ[i][j + 1 + k] = args[2][k++];
-			}
+				if (args[1][j] != environ[i][j])
+					break;
 
-			environ[i][j + 1 + k] = '\0';
-			return;
+				j++;
+			}
+			if (args[1][j] == '\0')
+			{
+				k = 0;
+				while (args[2][k])
+				{
+					environ[i][j + 1 + k] = args[2][k];
+					k++;
+				}
+				environ[i][j + 1 + k] = '\0';
+				return;
+			}
 		}
 	}
-	int num_vars = 0;
+
 
 	while (environ[num_vars])
-	{
 		num_vars++;
-	}
-	char *new_var = concat_all(args[1], "=", args[2]);
 
 	environ = realloc(environ, (num_vars + 2) * sizeof(char *));
 	environ[num_vars] = new_var;
@@ -110,6 +115,7 @@ void set_environment_variable(char **args)
 
 	free_arguments(args);
 }
+
 
 /**
  * unset_environment_variable - Remove an environment variable
