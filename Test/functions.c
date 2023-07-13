@@ -111,10 +111,6 @@ void set_environment_variable(char **args)
 	free_arguments(args);
 }
 
-
-
-
-
 /**
  * unset_environment_variable - Remove an environment variable
  * @args: array of entered words
