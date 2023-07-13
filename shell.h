@@ -16,7 +16,7 @@ int _putchar(char c);
 void _puts(char *str);
 int _atoi(char *s);
 char *_strdup(char *str);
-char *concatenate(char *name, char *sep, char *value);
+char *concat_all(char *name, char *sep, char *value);
 
 char **split_string(char *str, const char *delim);
 void execute_command(char **args);
@@ -32,8 +32,8 @@ extern char **environ;
  */
 typedef struct list_path
 {
-    char *dir;
-    struct list_path *p;
+	char *dir;
+	struct list_path *p;
 } list_path;
 
 typedef void (*builtin_func)(char **);
@@ -45,8 +45,8 @@ typedef void (*builtin_func)(char **);
  */
 typedef struct builtin_func_table
 {
-    char *name;
-    builtin_func func;
+	char *name;
+	builtin_func func;
 } builtin_func_table;
 
 void exit_shell(char **args);

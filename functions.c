@@ -1,131 +1,161 @@
 #include "shell.h"
 
 /**
- * concatenate - concats 3 strings in a newly allocated memory
- * @name: first string
- * @sep: second string
- * @value: Third string
- * Return: pointer to the new string
+ * exit_shell - exits the shell with or without a return of status n
+ * @args: array of words of the entered line
  */
-
-char *concatenate(char *name, char *sep, char *value)
+void exit_shell(char **args)
 {
-	int len1, len2, len3, total_len, i, j;
-	char *result;
+	int status = 0;
 
-	len1 = strlen(name);
-	len2 = strlen(sep);
-	len3 = strlen(value);
-	total_len = len1 + len2 + len3;
-
-	result = malloc(sizeof(char) * (total_len + 1));
-	if (result == NULL)
-		return (NULL);
-
-	for (i = 0; i < len1; i++)
-		result[i] = name[i];
-	for (j = 0; j < len2; j++)
-		result[i + j] = sep[j];
-	for (j = 0; j < len3; j++)
-		result[i + j + len2] = value[j];
-	result[i + j + len2] = '\0';
-
-	return (result);
-}
-
-/**
- * _strdup - returns a pointer to a newly allocated space in memory, which
- * contains a copy of the string given as a parameter
- * @str: pointer to a string
- * Return: pointer to a string
- */
-
-char *_strdup(char *str)
-{
-	if (str == NULL)
-		return (NULL);
-
-	int len = strlen(str);
-	char *dup = malloc(sizeof(char) * (len + 1));
-
-	if (dup == NULL)
-		return (NULL);
-
-	strcpy(dup, str);
-	return (dup);
-}
-
-/**
- * split_string - splits a string and makes it an array of pointers to words
- * @str: the string to be split
- * @delim: the delimiter
- * Return: array of pointers to words
- */
-
-char **split_string(char *str, const char *delim)
-{
-	int i, wn;
-	char **array;
-	char *token;
-	char *copy;
-
-	copy = _strdup(str);
-	if (copy == NULL)
+	if (args[1])
 	{
-		perror("Memory allocation failed");
-		return (NULL);
+		status = _atoi(args[1]);
+		if (status <= -1)
+			status = 2;
 	}
+
+	free_arguments(args);
+	exit(status);
+}
+
+/**
+ * _atoi - converts a string into an integer
+ * @s: pointer to a string
+ * Return: the integer
+ */
+int _atoi(char *s)
+{
+	int i, integer, sign = 1;
 
 	i = 0;
-	while (copy[i])
+	integer = 0;
+	while (!((s[i] >= '0') && (s[i] <= '9')) && (s[i] != '\0'))
 	{
+		if (s[i] == '-')
+		{
+			sign = sign * (-1);
+		}
 		i++;
 	}
-	copy[i] = '\0';
-
-	token = strtok(copy, delim);
-	array = malloc(sizeof(char *) * 2);
-	array[0] = _strdup(token);
-
-	i = 1;
-	wn = 3;
-	while (token)
+	while ((s[i] >= '0') && (s[i] <= '9'))
 	{
-		token = strtok(NULL, delim);
-		array = realloc(array, sizeof(char *) * wn);
-		array[i] = _strdup(token);
+		integer = (integer * 10) + (sign * (s[i] - '0'));
 		i++;
-		wn++;
 	}
-	free(copy);
-	return (array);
+	return (integer);
 }
 
 /**
- * _putchar - writes the character c to stdout
- * @c: The character to print
- *
- * Return: On success 1.
- * On error, -1 is returned, and errno is set appropriately.
+ * print_environment - prints the current environment
+ * @args: array of arguments
  */
-
-int _putchar(char c)
+void print_environment(char **args)
 {
-	return (write(1, &c, 1));
+	int i;
+
+	for (i = 0; environ[i]; i++)
+	{
+		_puts(environ[i]);
+		_puts("\n");
+	}
+
+	free_arguments(args);
 }
 
 /**
- * _puts - prints a string
- * @str: pointer to string
+ * set_environment_variable - Initialize a new environment variable, or modify an existing one
+ * @args: array of entered words
  */
-
-void _puts(char *str)
+void set_environment_variable(char **args)
 {
-	int i = 0;
+	int i, j, k;
 
-	while (str[i])
+	if (!args[1] || !args[2])
 	{
-		_putchar(str[i]);
-		i++;
+		perror(_getenv("_"));
+		return;
 	}
+
+	for (i = 0; environ[i]; i++)
+	{
+		j = 0;
+		if (args[1][j] == environ[i][j])
+		{
+			while (args[1][j])
+			{
+				if (args[1][j] != environ[i][j])
+					break;
+
+				j++;
+			}
+			if (args[1][j] == '\0')
+			{
+				k = 0;
+				while (args[2][k])
+				{
+					environ[i][j + 1 + k] = args[2][k];
+					k++;
+				}
+				environ[i][j + 1 + k] = '\0';
+				return;
+			}
+		}
+	}
+
+
+	int num_vars = 0;
+	while (environ[num_vars])
+		num_vars++;
+
+	char *new_var = concat_all(args[1], "=", args[2]);
+	environ = realloc(environ, (num_vars + 2) * sizeof(char *));
+	environ[num_vars] = new_var;
+	environ[num_vars + 1] = NULL;
+
+	free_arguments(args);
+}
+
+/**
+ * unset_environment_variable - Remove an environment variable
+ * @args: array of entered words
+ */
+void unset_environment_variable(char **args)
+{
+	int i, j;
+
+	if (!args[1])
+	{
+		perror(_getenv("_"));
+		return;
+	}
+
+	for (i = 0; environ[i]; i++)
+	{
+		j = 0;
+		if (args[1][j] == environ[i][j])
+		{
+			while (args[1][j])
+			{
+				if (args[1][j] != environ[i][j])
+					break;
+
+				j++;
+			}
+			if (args[1][j] == '\0')
+			{
+				free(environ[i]);
+				while (environ[i + 1])
+				{
+					environ[i] = environ[i + 1];
+					i++;
+				}
+				environ = realloc(environ, (i + 1) * sizeof(char *));
+				environ[i] = NULL;
+				return;
+			}
+		}
+	}
+
+	free_arguments(args);
 }

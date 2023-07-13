@@ -1,135 +1,95 @@
 #include "shell.h"
 
 /**
- * find_executable_path - finds the pathname of an executable file
- * @filename: name of file or command
- * @head: head of linked list of path directories
- * Return: pathname of filename or NULL if no match
+ * handle_eof - handles the End of File
+ * @len: return value of getline function
+ * @buff: buffer
  */
-
-char *find_executable_path(char *filename, list_path *head)
+void handle_eof(int len, char *buff)
 {
-	struct stat st;
-	char *pathname;
-	list_path *tmp = head;
-
-	while (tmp != NULL)
+	if (len == -1)
 	{
-		pathname = concat_all(tmp->dir, "/", filename);
-		if (stat(pathname, &st) == 0)
-			return (pathname);
-		free(pathname);
-		tmp = tmp->p;
-	}
-
-	return (NULL);
-}
-
-
-/**
- * create_path_list - creates a linked list for path directories
- * @path: string of path value
- * Return: pointer to the created linked list
- */
-
-list_path *create_path_list(char *path)
-{
-	list_path *head = NULL;
-	char *token;
-	char *copy_path = _strdup(path);
-
-	token = strtok(copy_path, ":");
-	while (token != NULL)
-	{
-		head = add_path_node_end(&head, token);
-		token = strtok(NULL, ":");
-	}
-
-	free(copy_path);
-	return (head);
-}
-
-/**
- * add_path_node_end - adds a new node at the end of a list_path list
- * @head: pointer to pointer to our linked list
- * @dir: pointer to directory in previous first node
- * Return: address of the new element/node
- */
-
-list_path *add_path_node_end(list_path **head, char *dir)
-{
-	list_path *tmp, *new_node;
-
-	new_node = malloc(sizeof(list_path));
-	if (new_node == NULL)
-		return (NULL);
-
-	new_node->dir = _strdup(dir);
-	new_node->p = NULL;
-
-	if (*head == NULL)
-	{
-		*head = new_node;
-	}
-	else
-	{
-		tmp = *head;
-		while (tmp->p)
-			tmp = tmp->p;
-
-		tmp->p = new_node;
-	}
-
-	return (*head);
-}
-
-/**
- * _getenv - gets the value of the global variable
- * @name: name of the global variable
- * Return: string of value
- */
-char *_getenv(const char *name)
-{
-	int i, j;
-	char *value;
-
-	if (!name)
-		return (NULL);
-
-	for (i = 0; environ[i]; i++)
-	{
-		j = 0;
-		if (name[j] == environ[i][j])
+		if (isatty(STDIN_FILENO))
 		{
-			while (name[j])
-			{
-				if (name[j] != environ[i][j])
-					break;
-
-				j++;
-			}
-			if (name[j] == '\0')
-			{
-				value = (environ[i] + j + 1);
-				return (value);
-			}
+			_puts("\n");
+			free(buff);
 		}
+		exit(0);
 	}
-
-	return (NULL);
 }
 
 /**
- * free_arguments - frees the array of pointers args
- * @args: array of pointers
+ * check_isatty - checks if the shell is running in a terminal
  */
-void free_arguments(char **args)
+void check_isatty(void)
 {
-	int i;
-
-	for (i = 0; args[i]; i++)
-		free(args[i]);
-	free(args);
+	if (isatty(STDIN_FILENO))
+		_puts("$ ");
 }
 
 
+/**
+ * _puts - prints a string
+ * @str: pointer to string
+ */
+void _puts(char *str)
+{
+	int i = 0;
+
+	while (str[i])
+	{
+		_putchar(str[i]);
+		i++;
+	}
+}
+
+/**
+ * _putchar - writes the character c to stdout
+ * @c: The character to print
+ *
+ * Return: On success 1.
+ * On error, -1 is returned, and errno is set appropriately.
+ */
+int _putchar(char c)
+{
+	return (write(1, &c, 1));
+}
+
+char **split_string(char *str, const char *delim)
+{
+	int i, wn;
+	char **array;
+	char *token;
+	char *copy;
+
+	copy = _strdup(str);
+	if (copy == NULL)
+	{
+		perror("Memory allocation failed");
+		return (NULL);
+	}
+
+	i = 0;
+	while (copy[i])
+	{
+		i++;
+	}
+	copy[i] = '\0';
+
+	token = strtok(copy, delim);
+	array = malloc(sizeof(char *) * 2);
+	array[0] = _strdup(token);
+
+	i = 1;
+	wn = 3;
+	while (token)
+	{
+		token = strtok(NULL, delim);
+		array = realloc(array, sizeof(char *) * wn);
+		array[i] = _strdup(token);
+		i++;
+		wn++;
+	}
+	free(copy);
+	return (array);
+}

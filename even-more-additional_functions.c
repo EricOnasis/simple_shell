@@ -1,143 +1,41 @@
 #include "shell.h"
 
-/**
- * unset_environment_variable - Remove an environment variable
- * @args: array of entered words
- */
-void unset_environment_variable(char **args)
+char *_strdup(char *str)
 {
-	int i, j;
+	if (str == NULL)
+		return (NULL);
 
-	if (!args[1])
-	{
-		perror(_getenv("_"));
-		return;
-	}
+	int len = strlen(str);
+	char *dup = malloc(sizeof(char) * (len + 1));
 
-	for (i = 0; environ[i]; i++)
-	{
-		j = 0;
-		if (args[1][j] == environ[i][j])
-		{
-			while (args[1][j])
-			{
-				if (args[1][j] != environ[i][j])
-					break;
+	if (dup == NULL)
+		return (NULL);
 
-				j++;
-			}
-			if (args[1][j] == '\0')
-			{
-				free(environ[i]);
-				while (environ[i + 1])
-				{
-					environ[i] = environ[i + 1];
-					i++;
-				}
-				environ = realloc(environ, (i + 1) * sizeof(char *));
-				environ[i] = NULL;
-				return;
-			}
-		}
-	}
-
-	free_arguments(args);
+	strcpy(dup, str);
+	return (dup);
 }
 
-/**
- * set_environment_variable - Initialize a new environment variable, or modify an existing one
- * @args: array of entered words
- */
-void set_environment_variable(char **args)
+char *concat_all(char *name, char *sep, char *value)
 {
-	int i, j, k;
+	int len1, len2, len3, total_len, i, j;
+	char *result;
 
-	if (!args[1] || !args[2])
-	{
-		perror(_getenv("_"));
-		return;
-	}
-	for (i = 0; environ[i]; i++)
-	{
-		j = 0;
-		if (args[1][j] == environ[i][j])
-		{
-			while (args[1][j])
-			{
-				if (args[1][j] != environ[i][j])
-					break;
-				j++;
-			}
-			if (args[1][j] == '\0')
-			{
-				k = 0;
-				while (args[2][k])
-				{
-					environ[i][j + 1 + k] = args[2][k];
-					k++;
-				}
-				environ[i][j + 1 + k] = '\0';
-				return;
-			}
-		}
-	}
-	int num_vars = 0;
+	len1 = strlen(name);
+	len2 = strlen(sep);
+	len3 = strlen(value);
+	total_len = len1 + len2 + len3;
 
-	while (environ[num_vars])
-		num_vars++;
+	result = malloc(sizeof(char) * (total_len + 1));
+	if (result == NULL)
+		return (NULL);
 
-	char *new_var = concat_all(args[1], "=", args[2]);
-	environ = realloc(environ, (num_vars + 2) * sizeof(char *));
+	for (i = 0; i < len1; i++)
+		result[i] = name[i];
+	for (j = 0; j < len2; j++)
+		result[i + j] = sep[j];
+	for (j = 0; j < len3; j++)
+		result[i + j + len2] = value[j];
+	result[i + j + len2] = '\0';
 
-	environ[num_vars] = new_var;
-
-	environ[num_vars + 1] = NULL;
-
-	free_arguments(args);
-}
-
-/**
- * exit_shell - exits the shell with or without a return of status n
- * @args: array of words of the entered line
- */
-void exit_shell(char **args)
-{
-	int status = 0;
-
-	if (args[1])
-	{
-		status = _atoi(args[1]);
-		if (status <= -1)
-			status = 2;
-	}
-
-	free_arguments(args);
-	exit(status);
-}
-
-/**
- * _atoi - converts a string into an integer
- * @s: pointer to a string
- * Return: the integer
- */
-int _atoi(char *s)
-{
-	int i, integer, sign = 1;
-
-	i = 0;
-	integer = 0;
-	while (!((s[i] >= '0') && (s[i] <= '9')) && (s[i] != '\0'))
-	{
-		if (s[i] == '-')
-		{
-			sign = sign * (-1);
-		}
-		i++;
-	}
-	while ((s[i] >= '0') && (s[i] <= '9'))
-	{
-		integer = (integer * 10) + (sign * (s[i] - '0'));
-		i++;
-	}
-	return (integer);
+	return (result);
 }

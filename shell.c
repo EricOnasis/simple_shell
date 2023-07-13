@@ -1,48 +1,50 @@
 #include "shell.h"
+
 /**
- * main - Main shell function
+ * main - Shell
  * Return: 0 on success
  */
 int main(void)
 {
-	ssize_t input_length = 0;
-	char *input_buffer = NULL, *path_value, *full_pathname, **command_arguments;
-	size_t buffer_size = 0;
-	list_path *directory_list = '\0';
-	void (*command_function)(char **);
+	ssize_t len = 0;
+	char *buff = NULL, *value, *pathname, **args;
+	size_t size = 0;
+	list_path *head = NULL;
+	void (*func)(char **);
 
-	signal(SIGINT, handle_sigint);
-	while (input_length != EOF)
+	signal(SIGINT, sig_handler);
+	while (len != EOF)
 	{
-		print_prompt_if_tty();
-		input_length = getline(&input_buffer, &buffer_size, stdin);
-		handle_eof(input_length, input_buffer);
-		command_arguments = splitstring(input_buffer, " \n");
-		if (!command_arguments || !command_arguments[0])
-			execute(command_arguments);
+		check_isatty();
+		len = getline(&buff, &size, stdin);
+		handle_eof(len, buff);
+		args = split_string(buff, " \n");
+		if (!args || !args[0])
+			execute_command(args);
 		else
 		{
-			path_value = _getenv("PATH");
-			directory_list = linkpath(path_value);
-			full_pathname = _which(command_arguments[0], directory_list);
-			command_function = checkbuild(command_arguments);
-			if (command_function)
+			value = _getenv("PATH");
+			head = create_path_list(value);
+			pathname = find_executable_path(args[0], head);
+			func = get_builtin_function(args);
+			if (func)
 			{
-				free(input_buffer);
-				command_function(command_arguments);
+				free(buff);
+				func(args);
 			}
-			else if (!full_pathname)
-				execute(command_arguments);
-			else if (full_pathname)
+			else if (!pathname)
+				execute_command(args);
+			else if (pathname)
 			{
-				free(command_arguments[0]);
-				command_arguments[0] = full_pathname;
-				execute(command_arguments);
+				free(args[0]);
+				args[0] = pathname;
+				execute_command(args);
 			}
 		}
 	}
-	free_list(directory_list);
-	freearv(command_arguments);
-	free(input_buffer);
+
+	free_path_list(head);
+	free_arguments(args);
+	free(buff);
 	return (0);
 }
