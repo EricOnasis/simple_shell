@@ -9,17 +9,21 @@
 
 char *_strdup(char *str)
 {
-	int len = strlen(str);
-	char *dup = malloc(sizeof(char) * (len + 1));
-
 	if (str == NULL)
 		return (NULL);
 
+	int len = 0;
+	while (str[len] != '\0')
+		len++;
+
+	char *dup = malloc(sizeof(char) * (len + 1));
 	if (dup == NULL)
 		return (NULL);
 
 	strcpy(dup, str);
 	return (dup);
+
+
 }
 
 /**
