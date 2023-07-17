@@ -9,15 +9,24 @@
 
 char *_strdup(char *str)
 {
-	int len = strlen(str);
-	char *dup = malloc(sizeof(char) * (len + 1));
+	char *dup;
+	int len = 0;
 
 	if (str == NULL)
+		return (NULL);
+
+	while (str[len] != '\0')
+	len++;
+
+	dup = (char *)malloc(sizeof(char) * (len + 1));
+
+	if (dup == NULL)
 		return (NULL);
 
 	strcpy(dup, str);
 	return (dup);
 }
+
 
 /**
  * concat_all - concats 3 strings in a newly allocated memory
