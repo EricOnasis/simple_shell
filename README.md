@@ -46,7 +46,7 @@ List of allowed functions and system calls
 - wait4 (man 2 wait4)
 - write (man 2 write)
 
-TASKS: 
+TASKS:
 
 0. Betty would be proud
 Write a beautiful code that passes the Betty checks
