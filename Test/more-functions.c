@@ -109,14 +109,16 @@ void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
  * free_arguments - frees the array of pointers args
  * @args: array of pointers
  */
+
 void free_arguments(char **args)
 {
-	int i;
+    int i;
 
-	for (i = 0; args[i]; i++)
-		free(args[i]);
-	free(args);
+    for (i = 0; args[i]; i++)
+        free(args[i]);
+    free(args);
 }
+
 
 /**
  * _getenv - gets the value of the global variable

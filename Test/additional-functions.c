@@ -5,6 +5,7 @@
  * @len: return value of getline function
  * @buff: buffer
  */
+
 void handle_eof(int len, char *buff)
 {
 	if (len == -1)
@@ -19,8 +20,9 @@ void handle_eof(int len, char *buff)
 }
 
 /**
- * check_isatty - checks if the shell is running in a terminal
+ * check_isatty - checks whether the shell is running in a terminal
  */
+
 void check_isatty(void)
 {
 	if (isatty(STDIN_FILENO))
@@ -32,6 +34,7 @@ void check_isatty(void)
  * _puts - prints a string
  * @str: pointer to string
  */
+
 void _puts(char *str)
 {
 	int i = 0;
@@ -46,20 +49,20 @@ void _puts(char *str)
 /**
  * _putchar - writes the character c to stdout
  * @c: The character to print
- *
  * Return: On success 1.
  * On error, -1 is returned, and errno is set appropriately.
  */
+
 int _putchar(char c)
 {
 	return (write(1, &c, 1));
 }
 
 /**
- * split_string - splits a string and makes it an array of pointers to words
+ * split_string - splits a string and makes it an array
  * @str: the string to be split
  * @delim: the delimiter
- * Return: array of pointers to words
+ * Return: the array
  */
 
 char **split_string(char *str, const char *delim)

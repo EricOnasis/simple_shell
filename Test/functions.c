@@ -78,7 +78,6 @@ void set_environment_variable(char **args)
 		perror(_getenv("_"));
 		return;
 	}
-
 	for (i = 0; environ[i]; i++)
 	{
 		j = 0;
@@ -88,7 +87,6 @@ void set_environment_variable(char **args)
 			{
 				if (args[1][j] != environ[i][j])
 					break;
-
 				j++;
 			}
 			if (args[1][j] == '\0')
@@ -104,11 +102,8 @@ void set_environment_variable(char **args)
 			}
 		}
 	}
-
-
 	while (environ[num_vars])
 		num_vars++;
-
 	environ = realloc(environ, (num_vars + 2) * sizeof(char *));
 	environ[num_vars] = new_var;
 	environ[num_vars + 1] = NULL;
