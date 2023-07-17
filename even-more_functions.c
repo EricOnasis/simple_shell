@@ -1,10 +1,10 @@
 #include "shell.h"
 
 /**
- * add_path_node_end - adds a new node at the end of a list_path list
- * @head: pointer to pointer to our linked list
- * @dir: pointer to directory in previous first node
- * Return: address of the new element/node
+ * add_path_node_end - Adds a new node at the end of a list_path list
+ * @head: Pointer to pointer to our linked list
+ * @dir: Pointer to directory in previous first node
+ * Return: Address of the new element/node
  */
 list_path *add_path_node_end(list_path **head, char *dir)
 {
@@ -57,9 +57,9 @@ list_path *create_path_list(char *path)
 
 /**
  * find_executable_path - finds the pathname of an executable file
- * @filename: name of file or command
- * @head: head of linked list of path directories
- * Return: pathname of filename or NULL if no match
+ * @filename: Name of file or command
+ * @head: Head of linked list of path directories
+ * Return: Pathname of filename or NULL if no match
  */
 char *find_executable_path(char *filename, list_path *head)
 {
