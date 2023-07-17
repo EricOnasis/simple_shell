@@ -28,19 +28,21 @@ int main(void)
 			builtinFunc = get_builtin_function(arguments);
 			if (builtinFunc)
 			{
-				free(buffer), builtinFunc(arguments);
+				builtinFunc(arguments);
 			}
 			else if (!execPath)
+			{
 				execute_command(arguments);
+			}
 			else
+			{
 				free(arguments[0]), arguments[0] = execPath,
 					execute_command(arguments);
+			}
+			free_path_list(pathHead);
 		}
-		else
-			execute_command(arguments), free_path_list(pathHead),
-				free_arguments(arguments);
+		free(buffer);
 	}
 
-	free(buffer);
 	return (0);
 }
