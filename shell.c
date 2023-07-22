@@ -41,7 +41,7 @@ int main(void)
 			}
 			free_path_list(pathHead);
 		}
-		free(buffer);
+		free(buffer);		
 	}
 
 	return (0);
