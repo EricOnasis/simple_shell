@@ -7,42 +7,45 @@
 
 int main(void)
 {
-	list_path *pathHead = NULL;
-	void (*builtinFunc)(char **);
-	ssize_t length = 0;
-	char *buffer = NULL, **arguments = NULL, *envValue = NULL, *execPath = NULL;
-	size_t bufferSize = 0;
+	char *buff = NULL, *value, *pathname, **args;
+	void (*func)(char **);
+	ssize_t len = 0;
+	list_path *head = NULL;
+	size_t size = 0;
 
 	signal(SIGINT, sig_handler);
-	while (length != EOF)
+	while (len != EOF)
 	{
 		check_isatty();
-		length = getline(&buffer, &bufferSize, stdin);
-		handle_eof(length, buffer);
-		arguments = split_string(buffer, " \n");
-		if (arguments && arguments[0])
+		len = getline(&buff, &size, stdin);
+		handle_eof(len, buff);
+		args = split_string(buff, " \n");
+		if (!args || !args[0])
+			execute_command(args);
+		else
 		{
-			envValue = _getenv("PATH");
-			pathHead = create_path_list(envValue);
-			execPath = find_executable_path(arguments[0], pathHead);
-			builtinFunc = get_builtin_function(arguments);
-			if (builtinFunc)
+			value = _getenv("PATH");
+			head = create_path_list(value);
+			pathname = find_executable_path(args[0], head);
+			func = get_builtin_function(args);
+			if (func)
 			{
-				builtinFunc(arguments);
+				free(buff);
+				func(args);
 			}
-			else if (!execPath)
+			else if (!pathname)
+				execute_command(args);
+			else if (pathname)
 			{
-				execute_command(arguments);
+				free(args[0]);
+				args[0] = pathname;
+				execute_command(args);
 			}
-			else
-			{
-				free(arguments[0]), arguments[0] = execPath,
-					execute_command(arguments);
-			}
-			free_path_list(pathHead);
 		}
-		free(buffer);
 	}
-	free_arguments(arguments);
+
+	free_path_list(head);
+	free_arguments(args);
+	free(buff);
 	return (0);
 }
