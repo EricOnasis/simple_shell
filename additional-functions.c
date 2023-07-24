@@ -13,8 +13,8 @@ void handle_eof(int len, char *buff)
 		if (isatty(STDIN_FILENO))
 		{
 			_puts("\n");
-			free(buff);
 		}
+		free(buff);
 		exit(0);
 	}
 }
