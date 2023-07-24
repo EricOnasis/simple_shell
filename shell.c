@@ -43,7 +43,6 @@ int main(void)
 			}
 		}
 	}
-
 	free_path_list(head);
 	free_arguments(args);
 	free(buff);
