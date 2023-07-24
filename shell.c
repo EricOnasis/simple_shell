@@ -43,6 +43,6 @@ int main(void)
 		}
 		free(buffer);
 	}
-
+	free_arguments(arguments);
 	return (0);
 }
