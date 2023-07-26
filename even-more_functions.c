@@ -1,28 +1,4 @@
 #include "shell.h"
-
-/**
- * _strtok - breaks the string s1 into tokens and null-terminates them.
- * Delimiter-Characters at the beginning and end
- *of str are skipped. On each subsequent call delim may change.
- * @str: string to tokenize
- * @delim: string with the character that delimit srt.
- * Return: the first/next token if possible, a null-pointer otherwise.
- **/
-char *_strtok(char *str, const char *delim)
-{
-	static char *p;
-
-	if (str)
-		p = str;
-	else if (!p)
-		return (0);
-	str = p + _strspn(p, delim);
-	p = str + _strcspn(str, delim);
-	if (p == str)
-		return (p = 0);
-	p = *p ? *p = 0, p + 1 : 0;
-	return (str);
-}
 /**
  * _strcspn - computes the length of the maximum initial segment of the string
  * pointed to by s1which consists entirely of characters not from the
@@ -101,4 +77,24 @@ char *_strcat(char *dest, char *src)
 	}
 	dest[d] = '\0';
 	return (dest);
+}
+
+
+/**
+ * _strcmp - compare the values of a string
+ * @s1: character
+ * @s2: character
+ * Return: 0
+ */
+
+int _strcmp(char *s1, char *s2)
+{
+	int a;
+
+	for (a = 0; s1[a] != '\0' && s2[a] != '\0'; a++)
+	{
+		if (s1[a] != s2[a])
+			return ((int)s1[a] - s2[a]);
+	}
+	return (0);
 }
