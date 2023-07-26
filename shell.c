@@ -1,21 +1,12 @@
 #include "shell.h"
 
 /**
- * main - main arguments functions
- * @argc: count of arguments
- * @argv: arguments
- * @env: environment
- * Return: _exit = 0.
- */
-
-/**
  * main - Main arguments function
  * @argc: Count of arguments
  * @argv: Arguments
  * @envp: Environment
  * Return: _exit = 0
  */
-
 
 int main(int argc, char **argv, char **envp)
 {
@@ -35,7 +26,6 @@ int main(int argc, char **argv, char **envp)
 				free(userInput);
 				continue;
 			}
-
 			if ((!_strcmp(userTokens[0], "exit")) && userTokens[1] == NULL)
 				exit_command(userTokens, userInput, exitCode);
 			if (!_strcmp(userTokens[0], "env"))
@@ -43,11 +33,11 @@ int main(int argc, char **argv, char **envp)
 			else
 			{
 				n = find_path(userTokens, envp);
-				exitCode = fork_and_execute(userTokens, argv, envp, userInput, pathValue, n);
+				exitCode = fork_and_execute(userTokens, argv,
+						envp, userInput, pathValue, n);
 				if (n == 0)
 					free(userTokens[0]);
 			}
-
 			free(userTokens);
 		}
 		else
@@ -56,7 +46,6 @@ int main(int argc, char **argv, char **envp)
 				write(STDOUT_FILENO, "\n", 1);
 			exit(exitCode);
 		}
-
 		free(userInput);
 	}
 
