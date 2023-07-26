@@ -1,155 +1,105 @@
 #include "shell.h"
 
 /**
- * get_builtin_function - checks if the command is a built-in function
- * @args: array of arguments
- * Return: pointer to function that takes args and returns void
+ * get_user_input - print "#cisfun$ " and wait for the user to type something.
+ * Return: line of string input for the user
  */
-void (*get_builtin_function(char **args))(char **args)
-{
-	int i, j;
-	builtin_func_table table[] = {
-		{"exit", exit_shell},
-		{"env", print_environment},
-		{"setenv", set_environment_variable},
-		{"unsetenv", unset_environment_variable},
-		{NULL, NULL}};
 
-	for (i = 0; table[i].name; i++)
+char *get_user_input(void)
+{
+	char *line = NULL;
+	size_t user_input_size = 0;
+
+	if (isatty(STDIN_FILENO))
+		write(STDOUT_FILENO, "$ ", 2);
+
+	if (getline(&line, &user_input_size, stdin) == -1)
 	{
-		j = 0;
-		if (table[i].name[j] == args[0][j])
+		free(line);
+		return (NULL);
+	}
+
+	return (line);
+}
+
+/**
+ * get_path - get variable PATH.
+ * @env: environment
+ * Return: value of PATH.
+ */
+
+char *get_path(char **env)
+{
+	size_t index = 0, var = 0, count = 5;
+	char *path = NULL;
+
+	for (index = 0; _strncmp(env[index], "PATH=", 5); index++)
+		;
+
+	if (env[index] == NULL)
+		return (NULL);
+
+	for (count = 5; env[index][var]; var++, count++)
+		;
+
+	path = malloc(sizeof(char) * (count + 1));
+
+	if (path == NULL)
+		return (NULL);
+
+	for (var = 5, count = 0; env[index][var]; var++, count++)
+		path[count] = env[index][var];
+
+	path[count] = '\0';
+	return (path);
+}
+
+/**
+ * find_path - separate the path in new strings.
+ * @args: command input of user.
+ * @env: environment.
+ * Return: a pointer to strings.
+ */
+int find_path(char **args, char **env)
+{
+	char *token = NULL, *path_rela = NULL, *path_absol = NULL;
+	size_t value_path, command;
+	struct stat stat_lineptr;
+
+	if (stat(*args, &stat_lineptr) == 0)
+		return (-1);
+
+	path_rela = get_path(env);
+	if (!path_rela)
+		return (-1);
+
+	token = _strtok(path_rela, ":");
+	command = _strlen(*args);
+
+	while (token)
+	{
+		value_path = _strlen(token);
+		path_absol = malloc(sizeof(char) * (value_path + command + 2));
+
+		if (!path_absol)
 		{
-			while (args[0][j])
-			{
-				if (table[i].name[j] != args[0][j])
-					break;
-				j++;
-			}
-			if (!args[0][j])
-				return (table[i].func);
+			free(path_rela);
+			return (-1);
 		}
-	}
-	return (NULL);
-}
+		path_absol = _strcpy(path_absol, token);
+		_strcat(path_absol, "/");
+		_strcat(path_absol, *args);
 
-/**
- * execute_command - executes a command
- * @args: array of arguments
- */
-void execute_command(char **args)
-{
-	pid_t pid;
-	int status;
-
-	if (!args || !args[0])
-		return;
-
-	pid = fork();
-	if (pid == -1)
-	{
-		perror(_getenv("_"));
-	}
-	if (pid == 0)
-	{
-		execve(args[0], args, environ);
-		perror(args[0]);
-		exit(EXIT_FAILURE);
-	}
-	else
-	{
-		waitpid(pid, &status, 0);
-	}
-}
-
-/**
- * _realloc - Reallocates memory block
- * @ptr: previous pointer
- * @old_size: old size of previous pointer
- * @new_size: new size for our pointer
- * Return: New resized Pointer
- */
-void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
-{
-	char *new_ptr;
-	unsigned int i;
-
-	if (new_size == old_size)
-		return (ptr);
-
-	if (new_size == 0 && ptr != NULL)
-	{
-		free(ptr);
-		return (NULL);
-	}
-
-	new_ptr = malloc(new_size);
-	if (new_ptr == NULL)
-		return (NULL);
-
-	if (new_size > old_size)
-	{
-		for (i = 0; i < old_size; i++)
-			new_ptr[i] = *((char *)ptr + i);
-
-		for (; i < new_size; i++)
-			new_ptr[i] = '\0';
-	}
-	else
-	{
-		for (i = 0; i < new_size; i++)
-			new_ptr[i] = *((char *)ptr + i);
-	}
-
-	free(ptr);
-	return (new_ptr);
-}
-
-/**
- * free_arguments - frees the array of pointers args
- * @args: array of pointers
- */
-void free_arguments(char **args)
-{
-	int i;
-
-	for (i = 0; args[i]; i++)
-		free(args[i]);
-	free(args);
-}
-
-/**
- * _getenv - gets the value of the global variable
- * @name: name of the global variable
- * Return: string of value
- */
-char *_getenv(const char *name)
-{
-	int i, j;
-	char *value;
-
-	if (!name)
-		return (NULL);
-
-	for (i = 0; environ[i]; i++)
-	{
-		j = 0;
-		if (name[j] == environ[i][j])
+		if (stat(path_absol, &stat_lineptr) == 0)
 		{
-			while (name[j])
-			{
-				if (name[j] != environ[i][j])
-					break;
-
-				j++;
-			}
-			if (name[j] == '\0')
-			{
-				value = (environ[i] + j + 1);
-				return (value);
-			}
+			*args = path_absol;
+			free(path_rela);
+			return (0);
 		}
-	}
 
-	return (NULL);
+		free(path_absol);
+		token = _strtok(NULL, ":");
+	}
+	free(path_rela);
+	return (-1);
 }

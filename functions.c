@@ -1,157 +1,85 @@
 #include "shell.h"
 
 /**
- * exit_shell - exits the shell
- * @args: array of words of the entered line
+ * exit_command - this function closes the simple_shell when
+ * @args: pointer with the direction argument.
+ * @line: standard input string
+ * @status: value of exit
+ * Return: None
  */
-void exit_shell(char **args)
+
+void exit_command(char **args, char *line, int status)
 {
-	int status = 0;
-
-	if (args[1])
-	{
-		status = _atoi(args[1]);
-		if (status <= -1)
-			status = 2;
-	}
-
-	free_arguments(args);
-	exit(status);
-}
-
-/**
- * _atoi - converts a string into an integer
- * @s: pointer to a string
- * Return: the integer
- */
-int _atoi(char *s)
-{
-	int i, integer, sign = 1;
-
-	i = 0;
-	integer = 0;
-	while (!((s[i] >= '0') && (s[i] <= '9')) && (s[i] != '\0'))
-	{
-		if (s[i] == '-')
-		{
-			sign = sign * (-1);
-		}
-		i++;
-	}
-	while ((s[i] >= '0') && (s[i] <= '9'))
-	{
-		integer = (integer * 10) + (sign * (s[i] - '0'));
-		i++;
-	}
-	return (integer);
-}
-
-/**
- * print_environment - prints the current environment
- * @args: array of arguments
- */
-void print_environment(char **args)
-{
-	int i;
-
-	for (i = 0; environ[i]; i++)
-	{
-		_puts(environ[i]);
-		_puts("\n");
-	}
-
-	free_arguments(args);
-}
-
-/**
- * set_environment_variable - Initializes a new
- * environment variable, or modify an existing one
- * @args: array of entered words
- */
-void set_environment_variable(char **args)
-{
-	int i, j, k, num_vars = 0;
-	char *new_var = concat_all(args[1], "=", args[2]);
-
-	if (!args[1] || !args[2])
-	{
-		perror(_getenv("_"));
-		return;
-	}
-	for (i = 0; environ[i]; i++)
-	{
-		j = 0;
-		if (args[1][j] == environ[i][j])
-		{
-			while (args[1][j])
-			{
-				if (args[1][j] != environ[i][j])
-					break;
-				j++;
-			}
-			if (args[1][j] == '\0')
-			{
-				k = 0;
-				while (args[2][k])
-				{
-					environ[i][j + 1 + k] = args[2][k];
-					k++;
-				}
-				environ[i][j + 1 + k] = '\0';
-				return;
-			}
-		}
-	}
-	while (environ[num_vars])
-		num_vars++;
-	environ = realloc(environ, (num_vars + 2) * sizeof(char *));
-	environ[num_vars] = new_var;
-	environ[num_vars + 1] = NULL;
-
-	free_arguments(args);
-}
-
-
-/**
- * unset_environment_variable - Remove an environment variable
- * @args: array of entered words
- */
-void unset_environment_variable(char **args)
-{
-	int i, j;
-
+	int exit_status = atoi(args[1]);
+	
 	if (!args[1])
 	{
-		perror(_getenv("_"));
-		return;
+		free(line);
+		free(args);
+		exit(status);
 	}
+	
+	free(line);
+	free(args);
+	exit(exit_status);
+}
 
-	for (i = 0; environ[i]; i++)
+/**
+ * print_env - function to print all environment variables
+ * @env: environment
+ * Return: 0
+ */
+
+void print_env(char **env)
+{
+	size_t run = 0;
+
+	while (env[run])
 	{
-		j = 0;
-		if (args[1][j] == environ[i][j])
-		{
-			while (args[1][j])
-			{
-				if (args[1][j] != environ[i][j])
-					break;
+		write(STDOUT_FILENO, env[run], _strlen(env[run]));
+		write(STDOUT_FILENO, "\n", 1);
+		run++;
+	}
+}
 
-				j++;
-			}
-			if (args[1][j] == '\0')
-			{
-				free(environ[i]);
-				while (environ[i + 1])
-				{
-					environ[i] = environ[i + 1];
-					i++;
-				}
-				environ = realloc(environ, (i + 1) * sizeof(char *));
-				environ[i] = NULL;
-				return;
-			}
+/**
+ * fork_and_execute - function that creates a fork
+ * @args: command and values path
+ * @av: Has the name of our program
+ * @env: environment
+ * @line: command line for the user
+ * @process_id: id of process
+ * @checker: Checker add new test
+ * Return: 0 success
+ */
+
+int fork_and_execute(char **args, char **av, char **env,
+		char *line, int process_id, int checker)
+{
+	pid_t child;
+	int status;
+	char *format = "%s: %d: %s: not found\n";
+
+	child = fork();
+
+	if (child == 0)
+	{
+		if (execve(args[0], args, env) == -1)
+		{
+			fprintf(stderr, format, av[0], process_id, args[0]);
+			if (!checker)
+				free(args[0]);
+			free(args);
+			free(line);
+			exit(errno);
 		}
 	}
+	else
+	{
+		wait(&status);
 
-	free_arguments(args);
+		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+			return (WEXITSTATUS(status));
+	}
+	return (0);
 }

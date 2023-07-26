@@ -1,108 +1,66 @@
 #include "shell.h"
 
 /**
- * add_path_node_end - Adds a new node at the end of a list_path list
- * @head: Pointer to pointer to our linked list
- * @dir: Pointer to directory in previous first node
- * Return: Address of the new element/node
+ * tokenize_input - get token of string
+ * @line: command user
+ * Return: To a pointer
  */
-list_path *add_path_node_end(list_path **head, char *dir)
-{
-	list_path *tmp, *new_node;
 
-	new_node = malloc(sizeof(list_path));
-	if (new_node == NULL)
+char **tokenize_input(char *line)
+{
+	char **user_command = NULL;
+	char *token = NULL;
+	size_t i = 0;
+	int size = 0;
+
+	if (line == NULL)
 		return (NULL);
 
-	new_node->dir = _strdup(dir);
-	new_node->p = NULL;
-
-	if (*head == NULL)
+	for (i = 0; line[i]; i++)
 	{
-		*head = new_node;
-	}
-	else
-	{
-		tmp = *head;
-		while (tmp->p)
-			tmp = tmp->p;
-
-		tmp->p = new_node;
+		if (line[i] == ' ')
+			size++;
 	}
 
-	return (*head);
+	if ((size + 1) == _strlen(line))
+		return (NULL);
+
+	user_command = malloc(sizeof(char *) * (size + 2));
+	if (user_command == NULL)
+		return (NULL);
+
+	token = _strtok(line, " \n\t\r");
+	for (i = 0; token != NULL; i++)
+	{
+		user_command[i] = token;
+		token = _strtok(NULL, " \n\t\r");
+	}
+	user_command[i] = NULL;
+	return (user_command);
 }
 
 /**
- * create_path_list - creates a linked list for path directories
- * @path: string of path value
- * Return: pointer to the created linked list
- */
-list_path *create_path_list(char *path)
+ * _strtok - breaks the string s1 into tokens and null-terminates them.
+ * Delimiter-Characters at the beginning and end
+ *of str are skipped. On each subsequent call delim may change.
+ * @str: string to tokenize
+ * @delim: string with the character that delimit srt.
+ * Return: the first/next token if possible, a null-pointer otherwise.
+ **/
+
+char *_strtok(char *str, const char *delim)
 {
-	list_path *head = NULL;
-	char *token;
-	char *copy_path = _strdup(path);
+	static char *p;
 
-	token = strtok(copy_path, ":");
-	while (token != NULL)
-	{
-		head = add_path_node_end(&head, token);
-		token = strtok(NULL, ":");
-	}
+	if (str)
+		p = str;
+	else if (!p)
+		return (NULL);
 
-	free(copy_path);
-	return (head);
-}
-
-/**
- * find_executable_path - finds the pathname of an executable file
- * @filename: Name of file or command
- * @head: Head of linked list of path directories
- * Return: Pathname of filename or NULL if no match
- */
-char *find_executable_path(char *filename, list_path *head)
-{
-	struct stat st;
-	char *pathname;
-	list_path *tmp = head;
-
-	while (tmp != NULL)
-	{
-		pathname = concat_all(tmp->dir, "/", filename);
-		if (stat(pathname, &st) == 0)
-			return (pathname);
-		free(pathname);
-		tmp = tmp->p;
-	}
-
-	return (NULL);
-}
-
-/**
- * free_path_list - frees a list_path
- * @head: pointer to our linked list
- */
-void free_path_list(list_path *head)
-{
-	list_path *current = head;
-	list_path *next;
-
-	while (current != NULL)
-	{
-		next = current->p;
-		free(current->dir);
-		free(current);
-		current = next;
-	}
-}
-
-/**
- * sig_handler - checks if Ctrl C is pressed
- * @sig_num: int
- */
-void sig_handler(int sig_num)
-{
-	if (sig_num == SIGINT)
-		_puts("\n$ ");
+	str = p + _strspn(p, delim);
+	p = str + _strcspn(str, delim);
+	if (p == str)
+		return (p = (NULL));
+	p = *p ? *p = 0, p + 1 : NULL;
+	return (str);
 }

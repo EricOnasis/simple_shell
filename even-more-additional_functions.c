@@ -1,62 +1,84 @@
 #include "shell.h"
 
 /**
- * _strdup - Returns a pointer to a newly allocated space in memory, which
- * contains a copy of the string given as a parameter
- * @str: Pointer to a string
- * Return: Pointer to a string
+ * _strcmp - compare the values of a string
+ * @s1: character
+ * @s2: character
+ * Return: 0
  */
 
-char *_strdup(char *str)
+int _strcmp(char *s1, char *s2)
 {
-	char *dup;
-	int len = 0;
+	int a;
 
-	if (str == NULL)
-		return (NULL);
-
-	while (str[len] != '\0')
-	len++;
-
-	dup = (char *)malloc(sizeof(char) * (len + 1));
-
-	if (dup == NULL)
-		return (NULL);
-
-	strcpy(dup, str);
-	return (dup);
+	for (a = 0; s1[a] != '\0' && s2[a] != '\0'; a++)
+	{
+		if (s1[a] != s2[a])
+			return ((int)s1[a] - s2[a]);
+	}
+	return (0);
 }
 
-
 /**
- * concat_all - Concats 3 strings in a newly allocated memory
- * @name: First string
- * @sep: Second string
- * @value: Third string
- * Return: pointer to the new string.
+ * _strlen - copies the string pointed to by src into dest
+ * @s: A pointer
+ * Return: char pointer to dest
  */
 
-char *concat_all(char *name, char *sep, char *value)
+int _strlen(char *s)
 {
-	int len1, len2, len3, total_len, i, j;
-	char *result;
+	int ch = 0;
 
-	len1 = strlen(name);
-	len2 = strlen(sep);
-	len3 = strlen(value);
-	total_len = len1 + len2 + len3;
+	while (*(s + ch) != '\0')
+	{
+		ch++;
+	}
 
-	result = malloc(sizeof(char) * (total_len + 1));
-	if (result == NULL)
-		return (NULL);
+	return (ch);
+}
 
-	for (i = 0; i < len1; i++)
-		result[i] = name[i];
-	for (j = 0; j < len2; j++)
-		result[i + j] = sep[j];
-	for (j = 0; j < len3; j++)
-		result[i + j + len2] = value[j];
-	result[i + j + len2] = '\0';
+/**
+ *_strncmp -  function that compares two strings.
+ *@s1: string one
+ *@s2: string two
+ *@n: number of characters
+ * Return: diference
+ */
 
-	return (result);
+size_t _strncmp(char *s1, char *s2, size_t n)
+{
+	size_t i, j;
+
+	for (j = 0; s1[j] != '\0' && j < n; j++)
+	{
+		i = s1[j] - s2[j];
+
+		if (i != 0)
+		{
+			return (i);
+		}
+	}
+	return (0);
+}
+
+/**
+ * _strcpy - copies the string pointed to by src into dest
+ * @dest: destination of the copy
+ * @src: source of the copy
+ *
+ * Return: char pointer to dest
+ */
+
+char *_strcpy(char *dest, char *src)
+{
+	int i = 0;
+
+	while (*(src + i) != '\0')
+	{
+		*(dest + i) = *(src + i);
+		++i;
+	}
+	*(dest + i) = *(src + i);
+
+	return (dest);
 }
