@@ -6,16 +6,17 @@
  * @env: environment
  * Return: 0
  */
+
 void print_env(char **env)
 {
-    size_t run = 0;
+	size_t run = 0;
 
-    while (env[run])
-    {
-        write(STDOUT_FILENO, env[run], _strlen(env[run]));
-        write(STDOUT_FILENO, "\n", 1);
-        run++;
-    }
+	while (env[run])
+	{
+		write(STDOUT_FILENO, env[run], _strlen(env[run]));
+		write(STDOUT_FILENO, "\n", 1);
+		run++;
+	}
 }
 
 /**
@@ -25,26 +26,28 @@ void print_env(char **env)
  */
 char *get_path(char **env)
 {
-    size_t index = 0, var = 0, count = 5;
-    char *path = NULL;
+	size_t index = 0, var = 0, count = 5;
+	char *path = NULL;
 
-    for (index = 0; _strncmp(env[index], "PATH=", 5); index++)
-        ;
-    if (env[index] == NULL)
-        return (NULL);
+	for (index = 0; _strncmp(env[index], "PATH=", 5); index++)
+		;
 
-    for (count = 5; env[index][var]; var++, count++)
-        ;
-    path = malloc(sizeof(char) * (count + 1));
+	if (env[index] == NULL)
+		return (NULL);
 
-    if (path == NULL)
-        return (NULL);
+	for (count = 5; env[index][var]; var++, count++)
+		;
 
-    for (var = 5, count = 0; env[index][var]; var++, count++)
-        path[count] = env[index][var];
+	path = malloc(sizeof(char) * (count + 1));
 
-    path[count] = '\0';
-    return (path);
+	if (path == NULL)
+		return (NULL);
+
+	for (var = 5, count = 0; env[index][var]; var++, count++)
+		path[count] = env[index][var];
+
+	path[count] = '\0';
+	return (path);
 }
 
 
@@ -56,41 +59,46 @@ char *get_path(char **env)
  */
 int find_path(char **args, char **env)
 {
-    char *token = NULL, *path_rela = NULL, *path_absol = NULL;
-    size_t value_path, command;
-    struct stat stat_lineptr;
+	char *token = NULL, *path_rela = NULL, *path_absol = NULL;
+	size_t value_path, command;
+	struct stat stat_lineptr;
 
-    if (stat(*args, &stat_lineptr) == 0)
-        return (-1);
-    path_rela = get_path(env);
-    if (!path_rela)
-        return (-1);
-    token = _strtok(path_rela, ":");
-    command = _strlen(*args);
-    while (token)
-    {
-        value_path = _strlen(token);
-        path_absol = malloc(sizeof(char) * (value_path + command + 2));
-        if (!path_absol)
-        {
-            free(path_rela);
-            return (-1);
-        }
-        path_absol = _strcpy(path_absol, token);
-        _strcat(path_absol, "/");
-        _strcat(path_absol, *args);
+	if (stat(*args, &stat_lineptr) == 0)
+		return (-1);
 
-        if (stat(path_absol, &stat_lineptr) == 0)
-        {
-            *args = path_absol;
-            free(path_rela);
-            return (0);
-        }
-        free(path_absol);
-        token = _strtok(NULL, ":");
-    }
-    free(path_rela);
-    return (-1);
+	path_rela = get_path(env);
+	if (!path_rela)
+		return (-1);
+
+	token = _strtok(path_rela, ":");
+	command = _strlen(*args);
+
+	while (token)
+	{
+		value_path = _strlen(token);
+		path_absol = malloc(sizeof(char) * (value_path + command + 2));
+
+		if (!path_absol)
+		{
+			free(path_rela);
+			return (-1);
+		}
+
+		path_absol = _strcpy(path_absol, token);
+		_strcat(path_absol, "/");
+		_strcat(path_absol, *args);
+
+		if (stat(path_absol, &stat_lineptr) == 0)
+		{
+			*args = path_absol;
+			free(path_rela);
+			return (0);
+		}
+		free(path_absol);
+		token = _strtok(NULL, ":");
+	}
+	free(path_rela);
+	return (-1);
 }
 
 
