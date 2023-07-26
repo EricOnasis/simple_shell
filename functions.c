@@ -1,8 +1,7 @@
 #include "shell.h"
 
-
 /**
- * print_env - function to print all environment variables
+ * print_env - function to print environment variables
  * @env: environment
  * Return: 0
  */
@@ -20,10 +19,11 @@ void print_env(char **env)
 }
 
 /**
- * get_path - get variable PATH.
+ * get_path - function that gets variable PATH.
  * @env: environment
  * Return: value of PATH.
  */
+
 char *get_path(char **env)
 {
 	size_t index = 0, var = 0, count = 5;
@@ -52,11 +52,12 @@ char *get_path(char **env)
 
 
 /**
- * find_path - separate the path in new strings.
+ * find_path - separates the paths in new strings.
  * @args: command input of user.
  * @env: environment.
  * Return: a pointer to strings.
  */
+
 int find_path(char **args, char **env)
 {
 	char *token = NULL, *path_rela = NULL, *path_absol = NULL;
@@ -103,13 +104,13 @@ int find_path(char **args, char **env)
 
 
 /**
- * _strtok - breaks the string s1 into tokens and null-terminates them.
- * Delimiter-Characters at the beginning and end
- *of str are skipped. On each subsequent call delim may change.
+ * _strtok - breaks string s1 into tokens and null-terminates them.
+ * Delimiter-Characters at the beginning and end.
  * @str: string to tokenize
- * @delim: string with the character that delimit srt.
- * Return: the first/next token if possible, a null-pointer otherwise.
+ * @delim: string with the character the delimit uses.
+ * Return: the first, next token or a null-pointer otherwise.
  **/
+
 char *_strtok(char *str, const char *delim)
 {
 	static char *p;

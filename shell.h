@@ -34,4 +34,4 @@ size_t _strncmp(char *s1, char *s2, size_t n);
 char *_strcpy(char *dest, char *src);
 int find_path(char **args, char **env);
 
-#endif /* SHELL_H */
+#endif

@@ -23,7 +23,7 @@ int _strlen(char *s)
  *@s1: string one
  *@s2: string two
  *@n: number of characters
- * Return: diference
+ * Return: diference between strings
  */
 
 size_t _strncmp(char *s1, char *s2, size_t n)

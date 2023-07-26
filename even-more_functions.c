@@ -1,12 +1,14 @@
 #include "shell.h"
+
 /**
  * _strcspn - computes the length of the maximum initial segment of the string
- * pointed to by s1which consists entirely of characters not from the
+ * pointed to by s1 which consists of characters not from the
  * string pointed to by s2.
  * @s1: string to check
  * @s2: string useful to compare
  * Return: the length of the segment.
  **/
+
 size_t _strcspn(const char *s1, const char *s2)
 {
 	size_t ret = 0;
@@ -27,6 +29,7 @@ size_t _strcspn(const char *s1, const char *s2)
  * @s2: string delimit
  * Return: the length of the segment.
  **/
+
 size_t _strspn(const char *s1, const char *s2)
 {
 	size_t ret = 0;
@@ -35,6 +38,7 @@ size_t _strspn(const char *s1, const char *s2)
 		ret++;
 	return (ret);
 }
+
 /**
  * _strchr - locates the ﬁrst occurrence of c (converted to a char) in the
  * string pointed to by s. The terminating null character is considered to be
@@ -44,6 +48,7 @@ size_t _strspn(const char *s1, const char *s2)
  * Return: a pointer to the located character, or a null pointer
  * if the character does not occur in the string.
  **/
+
 char *_strchr(const char *s, int c)
 {
 	while (*s != (char)c)
