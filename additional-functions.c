@@ -1,105 +1,83 @@
 #include "shell.h"
-
 /**
- * handle_eof - handles the End of File
- * @len: return value of getline function
- * @buff: buffer
+ * _strcmp - compare the values of a string
+ * @s1: character
+ * @s2: character
+ * Return: 0
  */
 
-void handle_eof(int len, char *buff)
+int _strcmp(char *s1, char *s2)
 {
-	if (len == -1)
+	int a;
+
+	for (a = 0; s1[a] != '\0' && s2[a] != '\0'; a++)
 	{
-		if (isatty(STDIN_FILENO))
-		{
-			_puts("\n");
-			free(buff);
-		}
-		exit(0);
+		if (s1[a] != s2[a])
+			return ((int)s1[a] - s2[a]);
 	}
+	return (0);
 }
 
 /**
- * check_isatty - checks whether the shell is running in a terminal
+ * _strlen - copies the string pointed to by src into dest
+ * @s: A pointer
+ * Return: char pointer to dest
  */
 
-void check_isatty(void)
+int _strlen(char *s)
 {
-	if (isatty(STDIN_FILENO))
-		_puts("$ ");
+	int ch = 0;
+
+	while (*(s + ch) != '\0')
+	{
+		ch++;
+	}
+
+	return (ch);
 }
 
-
 /**
- * _puts - prints a string
- * @str: pointer to string
+ *_strncmp -  function that compares two strings.
+ *@s1: string one
+ *@s2: string two
+ *@n: number of characters
+ * Return: diference
  */
 
-void _puts(char *str)
+size_t _strncmp(char *s1, char *s2, size_t n)
+{
+	size_t i, j;
+
+	for (j = 0; s1[j] != '\0' && j < n; j++)
+	{
+		i = s1[j] - s2[j];
+
+		if (i != 0)
+		{
+			return (i);
+		}
+	}
+	return (0);
+}
+
+/**
+ * _strcpy - copies the string pointed to by src into dest
+ * @dest: destination of the copy
+ * @src: source of the copy
+ *
+ * Return: char pointer to dest
+ */
+
+char *_strcpy(char *dest, char *src)
 {
 	int i = 0;
 
-	while (str[i])
+	while (*(src + i) != '\0')
 	{
-		_putchar(str[i]);
-		i++;
+		*(dest + i) = *(src + i);
+		++i;
 	}
-}
+	*(dest + i) = *(src + i);
 
-/**
- * _putchar - writes the character c to stdout
- * @c: The character to print
- * Return: On success 1.
- * On error, -1 is returned, and errno is set appropriately.
- */
-
-int _putchar(char c)
-{
-	return (write(1, &c, 1));
-}
-
-/**
- * split_string - splits a string and makes it an array
- * @str: the string to be split
- * @delim: the delimiter
- * Return: the array
- */
-
-char **split_string(char *str, const char *delim)
-{
-	int i, wn;
-	char **array;
-	char *token;
-	char *copy;
-
-	copy = _strdup(str);
-	if (copy == NULL)
-	{
-		perror("Memory allocation failed");
-		return (NULL);
-	}
-
-	i = 0;
-	while (copy[i])
-	{
-		i++;
-	}
-	copy[i] = '\0';
-
-	token = strtok(copy, delim);
-	array = malloc(sizeof(char *) * 2);
-	array[0] = _strdup(token);
-
-	i = 1;
-	wn = 3;
-	while (token)
-	{
-		token = strtok(NULL, delim);
-		array = realloc(array, sizeof(char *) * wn);
-		array[i] = _strdup(token);
-		i++;
-		wn++;
-	}
-	free(copy);
-	return (array);
+	return (dest);
 }
