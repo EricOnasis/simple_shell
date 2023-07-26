@@ -8,12 +8,12 @@
  * Return: None
  */
 
-void exit_command(char **args, char *line, int status) 
+void exit_command(char **args, char *line, int status)
 {
 	int exit_status = 0;
 
-    if (!args[1])
-    {
+	if (!args[1])
+	{
 		free(line);
 		free(args);
 		exit(status);
@@ -36,15 +36,19 @@ void exit_command(char **args, char *line, int status)
  * Return: 0 success
  */
 
-int fork_and_execute(char **args, char **av, char **env, char *line, int process_id, int checker) {
+int fork_and_execute(char **args, char **av, char **env,
+		char *line, int process_id, int checker)
+{
 	pid_t child;
 	int status;
 	char *format = "%s: %d: %s: not found\n";
 
 	child = fork();
 
-	if (child == 0) {
-		if (execve(args[0], args, env) == -1) {
+	if (child == 0)
+	{
+		if (execve(args[0], args, env) == -1)
+		{
 			fprintf(stderr, format, av[0], process_id, args[0]);
 			if (!checker)
 				free(args[0]);
@@ -52,13 +56,15 @@ int fork_and_execute(char **args, char **av, char **env, char *line, int process
 			free(line);
 			exit(errno);
 		}
-	} else {
+	}
+	else
+	{
 		wait(&status);
 
 		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
-			return WEXITSTATUS(status);
+			return (WEXITSTATUS(status));
 	}
-	return 0;
+	return (0);
 }
 
 
@@ -68,19 +74,19 @@ int fork_and_execute(char **args, char **av, char **env, char *line, int process
  */
 char *get_user_input(void)
 {
-    char *line = NULL;
-    size_t user_input_size = 0;
+	char *line = NULL;
+	size_t user_input_size = 0;
 
-    if (isatty(STDIN_FILENO))
-        write(STDOUT_FILENO, "$ ", 2);
+	if (isatty(STDIN_FILENO))
+		write(STDOUT_FILENO, "$ ", 2);
 
-    if (getline(&line, &user_input_size, stdin) == -1)
-    {
-        free(line);
-        return (NULL);
-    }
+	if (getline(&line, &user_input_size, stdin) == -1)
+		{
+		free(line);
+		return (NULL);
+		}
 
-    return (line);
+	return (line);
 }
 
 /**
@@ -90,31 +96,33 @@ char *get_user_input(void)
  */
 char **tokenize_input(char *line)
 {
-    char **user_command = NULL;
-    char *token = NULL;
-    size_t i = 0;
-    int size = 0;
+	char **user_command = NULL;
+	char *token = NULL;
+	size_t i = 0;
+	int size = 0;
 
-    if (line == NULL)
-        return (NULL);
+	if (line == NULL)
+		return (NULL);
 
-    for (i = 0; line[i]; i++)
-    {
-        if (line[i] == ' ')
-            size++;
-    }
-    if ((size + 1) == _strlen(line))
-        return (NULL);
-    user_command = malloc(sizeof(char *) * (size + 2));
-    if (user_command == NULL)
-        return (NULL);
+	for (i = 0; line[i]; i++)
+		{
+		if (line[i] == ' ')
+		size++;
+		}
+	if ((size + 1) == _strlen(line))
+		return (NULL);
+	user_command = malloc(sizeof(char *) * (size + 2));
 
-    token = _strtok(line, " \n\t\r");
-    for (i = 0; token != NULL; i++)
-    {
-        user_command[i] = token;
-        token = _strtok(NULL, " \n\t\r");
-    }
-    user_command[i] = NULL;
-    return (user_command);
+	if (user_command == NULL)
+		return (NULL);
+
+	token = _strtok(line, " \n\t\r");
+
+	for (i = 0; token != NULL; i++)
+		{
+		user_command[i] = token;
+		token = _strtok(NULL, " \n\t\r");
+		}
+	user_command[i] = NULL;
+	return (user_command);
 }
